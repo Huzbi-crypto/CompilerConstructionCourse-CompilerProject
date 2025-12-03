@@ -1,0 +1,12 @@
+int main(void) {
+  int a, b;
+  a = 1+5;
+  b = 3;
+  a = b + a * b;
+
+  if (a > b) {
+    b = 2;
+  }
+
+  return 0;
+}

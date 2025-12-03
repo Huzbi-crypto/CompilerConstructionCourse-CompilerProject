@@ -181,13 +181,13 @@ void process_array() {
 DECL_FLAG Decl() {
     DECL_FLAG declFlag = NO_DECL;
     TOKEN idToken;
-    DATA_TYPE tipoDado;
+    DATA_TYPE typeData;
     int type;
     int contProt = 0;
  
     if (t.cat == PR && (t.code == INT || t.code == FLOAT || t.code == BOOL || t.code == CHAR || t.code == VOID)) {
         type = t.code;
-        tipoDado = getTokenType(type);
+        typeData = getTokenType(type);
         t = Analex(fd); 
  
         if (t.cat != ID) {
@@ -204,7 +204,7 @@ DECL_FLAG Decl() {
         if (tLookahead.cat == SN && tLookahead.code == OPEN_PAREN) {
             contProt = 1;
             declFlag = DECL_PROT;
-            InsertTableID(idToken.lexema, CAT_FUNC, scope, tipoDado, false, false, 0, 0);
+            InsertTableID(idToken.lexema, CAT_FUNC, scope, typeData, false, false, 0, 0);
             t = Analex(fd);
             scope = LOCAL;
             t = Analex(fd);
@@ -229,12 +229,12 @@ DECL_FLAG Decl() {
                 t = Analex(fd); 
                 if (t.cat != CT_INT) erro("Array size must be an integer constant.");
                 int tamArray = t.int_value;
-                InsertTableID(idToken.lexema, CAT_VAR, scope, tipoDado, false, true, tamArray, offset_global_atual++);
+                InsertTableID(idToken.lexema, CAT_VAR, scope, typeData, false, true, tamArray, offset_global_atual++);
                 t = Analex(fd); 
                 if (t.cat != SN || t.code != CLOSE_SQUARE) erro("Expected ']' to close the array dimension.");
                 t = Analex(fd); 
             } else {
-                InsertTableID(idToken.lexema, CAT_VAR, scope, tipoDado, false, false, 0, offset_global_atual++);
+                InsertTableID(idToken.lexema, CAT_VAR, scope, typeData, false, false, 0, offset_global_atual++);
             }
 
             while (t.cat == SN && t.code == COMMA) {
@@ -251,12 +251,12 @@ DECL_FLAG Decl() {
                      t = Analex(fd); 
                     if (t.cat != CT_INT) erro("Array size must be an integer constant.");
                     int tamArray = t.int_value;
-                    InsertTableID(idToken.lexema, CAT_VAR, scope, tipoDado, false, true, tamArray, offset_global_atual++);
+                    InsertTableID(idToken.lexema, CAT_VAR, scope, typeData, false, true, tamArray, offset_global_atual++);
                     t = Analex(fd); 
                     if (t.cat != SN || t.code != CLOSE_SQUARE) erro("Expected ']' to close the array dimension.");
                     t = Analex(fd); 
                 } else {
-                    InsertTableID(idToken.lexema, CAT_VAR, scope, tipoDado, false, false, 0, offset_global_atual++);
+                    InsertTableID(idToken.lexema, CAT_VAR, scope, typeData, false, false, 0, offset_global_atual++);
                 }
             }
         }

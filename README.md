@@ -9,7 +9,7 @@ The compiler performs lexical, syntax, and semantic analysis, followed by code g
 
 ```script
 cd src/
-gcc -o compiler Analex.c main.c Anasint.c Anasem.c CodeGenerator.c TabIdent.c
+gcc -o compiler Analex.c main.c Anasynt.c Anasem.c CodeGenerator.c TabIdent.c
 ```
 
 ## How to Run the Compiler

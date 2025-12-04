@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "Anasint.h"
+#include "Anasynt.h"
 #include "CodeGenerator.h" 
 
 IDENTIFIER_TABLE tableIdentifiers; 

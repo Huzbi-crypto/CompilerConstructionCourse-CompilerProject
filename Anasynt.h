@@ -1,5 +1,5 @@
-#ifndef ANASINT_H
-#define ANASINT_H
+#ifndef ANASYNT_H
+#define ANASYNT_H
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -46,4 +46,4 @@ bool isOp_rel(TOKEN token);
 
 extern IDENTIFIER_TABLE tableIdentifiers;
 
-#endif // ANASINT_H
+#endif // ANASYNT_H

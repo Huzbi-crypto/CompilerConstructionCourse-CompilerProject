@@ -69,7 +69,7 @@ TOKEN AnalexTLA(FILE *input_file) {
     int state = 0;
     // Separate Buffers
     char lexema[MAX_LEXEME_SIZE];
-    char digitos[NUM_SIZE];
+    char digits[NUM_SIZE];
     char string[MAX_STRING_SIZE];
     int tamL = 0, tamD = 0, tamS = 0;
 
@@ -87,7 +87,7 @@ TOKEN AnalexTLA(FILE *input_file) {
                     state = 1;
                 }
                 else if (isdigit(c)) {
-                    digitos[tamD++] = c;
+                    digits[tamD++] = c;
                     state = 3;
                 }
                 else if (c == '\"') {
@@ -222,27 +222,27 @@ TOKEN AnalexTLA(FILE *input_file) {
 
             // states q3, q5, q6
             case 3:
-                if (isdigit(c)) { digitos[tamD++] = c; state = 3; }
-                else if (c == '.') { digitos[tamD++] = c; state = 5; } // go to q5
+                if (isdigit(c)) { digits[tamD++] = c; state = 3; }
+                else if (c == '.') { digits[tamD++] = c; state = 5; } // go to q5
                 else {
                     ungetc(c, fd);
-                    digitos[tamD] = '\0';
+                    digits[tamD] = '\0';
                     state = 4; // final state q4
-                    t.cat = CT_INT; t.int_value = atoi(digitos);
+                    t.cat = CT_INT; t.int_value = atoi(digits);
                     return t;
                 }
                 break;
             case 5:
-                if (isdigit(c)) { digitos[tamD++] = c; state = 6; } // go to q6
+                if (isdigit(c)) { digits[tamD++] = c; state = 6; } // go to q6
                 else { erro("Malformed real constant."); }
                 break;
             case 6:
-                if (isdigit(c)) { digitos[tamD++] = c; state = 6; }
+                if (isdigit(c)) { digits[tamD++] = c; state = 6; }
                 else {
                     ungetc(c, fd);
-                    digitos[tamD] = '\0';
+                    digits[tamD] = '\0';
                     state = 7; // final state q7
-                    t.cat = CT_REAL; t.real_value = atof(digitos);
+                    t.cat = CT_REAL; t.real_value = atof(digits);
                     return t;
                 }
                 break;
@@ -452,8 +452,8 @@ TOKEN AnalexTLA(FILE *input_file) {
 
 // =================================================================================
 // Auxiliary Function for Printing Signs (Operators)
-const char* getSinalStr(int codigo_sinal) {
-    switch(codigo_sinal) {
+const char* getSignalStr(int signal_code) {
+    switch(signal_code) {
         case ATRIB: return "=";
         case ADDIT: return "+";
         case SUBTRACTT: return "-";
@@ -508,7 +508,7 @@ void printToken(TOKEN token) {
                 }
                 break;
             case SN:
-                printf("Line %-3d: <SN, %s>\n", currLine, getSinalStr(token.code));
+                printf("Line %-3d: <SN, %s>\n", currLine, getSignalStr(token.code));
                 break;
             case FIN_EOF:
                 printf("--- EOF ---\n");

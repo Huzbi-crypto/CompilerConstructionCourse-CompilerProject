@@ -30,7 +30,7 @@ typedef enum {
 
 typedef struct {
     char name[MAX_LEXEME_SIZE];
-    CATEGORY_IDENTIFIER categoria; 
+    CATEGORY_IDENTIFIER category; 
     DATA_TYPE type; // Symbol data type
     SCOPE scope; // Symbol scope (global, local)
     int address;

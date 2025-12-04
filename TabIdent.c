@@ -44,7 +44,7 @@ int InsertTableID(const char *nomeId, CATEGORY_IDENTIFIER catId, SCOPE scope, DA
     // Use the address passed as a parameter instead of 'i'
     tableIdentifiers.identifiers[i].address = address;
     
-    tableIdentifiers.identifiers[i].categoria = catId;
+    tableIdentifiers.identifiers[i].category = catId;
     tableIdentifiers.identifiers[i].scope = scope;
     tableIdentifiers.identifiers[i].type = type;
     tableIdentifiers.identifiers[i].zombie = isZombie;
@@ -58,7 +58,7 @@ int InsertTableID(const char *nomeId, CATEGORY_IDENTIFIER catId, SCOPE scope, DA
 int removeLastIDInserted(int posicaoUltimoInserido)
 {
     tableIdentifiers.identifiers[posicaoUltimoInserido].name[0] = '\0';
-    tableIdentifiers.identifiers[posicaoUltimoInserido].categoria = CAT_EMPTY;
+    tableIdentifiers.identifiers[posicaoUltimoInserido].category = CAT_EMPTY;
     tableIdentifiers.identifiers[posicaoUltimoInserido].type = TYPE_VOID;
     tableIdentifiers.identifiers[posicaoUltimoInserido].scope = GLOBAL;
     tableIdentifiers.identifiers[posicaoUltimoInserido].address = 0;

@@ -9,14 +9,14 @@ Production Rules of the Cshort Grammar - Without Backtracking
 <prog>        ::= { decl ( ';' | '{' body_func '}' ) }
 
 <decl>        ::= <type> <decl_var> { ',' <decl_var> }
-              | <type> <id> '(' <tipos_param> ')' { ',' <id> '(' <tipos_param> ')' }
-              | <void> <id> '(' <tipos_param> ')' { ',' <id> '(' <tipos_param> ')' }
+              | <type> <id> '(' <type_param> ')' { ',' <id> '(' <type_param> ')' }
+              | <void> <id> '(' <type_param> ')' { ',' <id> '(' <type_param> ')' }
 
 <decl_var>    ::= <id> [ '[' <intcon> ']' ]
 
 <type>        ::= 'char' | 'int' | 'float' | 'bool'
 
-<tipos_param> ::= <void>
+<type_param> ::= <void>
               | <type> [ '&' ] <id> [ '[' ']' ] { ',' <type> [ '&' ] <id> [ '[' ']' ] }
 
 <body_func>  ::= { type decl_var { ',' decl_var} ';' } { cmd }
@@ -114,7 +114,7 @@ DATA_TYPE getTokenType(int cod) {
 }
 
 int contLabel = 0;
-int newRotulo() {
+int newLabel() {
     return contLabel++;
 }
 
@@ -369,7 +369,7 @@ void Type_param() {
 
 
 
-void cmd_cont(TOKEN id_alvo) {
+void cmd_cont(TOKEN target_id) {
     if (t.cat == SN && t.code == OPEN_PAREN) {
         t = Analex(fd);
         if (t.cat != SN || t.code != CLOSE_PAREN) {
@@ -390,15 +390,15 @@ void cmd_cont(TOKEN id_alvo) {
     }
     else {
         
-        int idx = SearchTableID(id_alvo.lexema);
+        int idx = SearchTableID(target_id.lexema);
         if (idx == -1) {
             char msg[100];
-            sprintf(msg, "Variable '%s' not declared.", id_alvo.lexema);
+            sprintf(msg, "Variable '%s' not declared.", target_id.lexema);
             erro(msg);
         }
 
         IDENTIFIER id = tableIdentifiers.identifiers[idx];
-        DATA_TYPE tipo_lhs = id.type;
+        DATA_TYPE type_lhs = id.type;
         
         if (t.cat == SN && t.code == OPEN_SQUARE) {
             if (!id.array) {
@@ -408,8 +408,8 @@ void cmd_cont(TOKEN id_alvo) {
             }
             t = Analex(fd);
 
-            DATA_TYPE tipo_indice = Expr();
-            if (tipo_indice != TYPE_INT) {
+            DATA_TYPE index_type = Expr();
+            if (index_type != TYPE_INT) {
                 erro("Array index must be an expression of type int.");
             }
 
@@ -424,9 +424,9 @@ void cmd_cont(TOKEN id_alvo) {
         }
         t = Analex(fd); // Consumes '='
         
-        DATA_TYPE tipo_rhs = Expr();
+        DATA_TYPE type_rhs = Expr();
         
-        checkCompatibilityAssignment(tipo_lhs, tipo_rhs, id.name);
+        checkCompatibilityAssignment(type_lhs, type_rhs, id.name);
         
         id = tableIdentifiers.identifiers[idx];
         GenerateCode("STOR %s", id.name);
@@ -435,17 +435,17 @@ void cmd_cont(TOKEN id_alvo) {
         if (t.cat != SN || t.code != SEMI_COLON) {
             erro("Expected ';' after assignment statement.");
         }
-        t = Analex(fd); // Consome ';'
+        t = Analex(fd); // Consumes ';'
     }
 }
 
 
 void Atrib() {
-    TOKEN id_alvo;
+    TOKEN target_id;
     if (t.cat != ID) {
         erro("Expected identifier in assignment statement.");
     }
-    id_alvo = t;
+    target_id = t;
     t = Analex(fd);
     if (t.cat == SN && t.code == OPEN_SQUARE) {
         t = Analex(fd);
@@ -460,57 +460,57 @@ void Atrib() {
     }
     t = Analex(fd);
     Expr();
-    printf("STOR %s", id_alvo.lexema);
+    printf("STOR %s", target_id.lexema);
 }
 
 
 void Cmd() {
     if (t.cat == PR && t.code == IF) {
-        int rotuloElse, rotuloFim;
+        int labelElse, labelEnd;
         t = Analex(fd); 
         if (t.cat != SN || t.code != OPEN_PAREN) erro("Expected '(' after 'if'.");
         t = Analex(fd); 
         
-        DATA_TYPE tipo_expr_if = Expr(); 
-        checkCondition("if", tipo_expr_if); 
+        DATA_TYPE type_expr_if = Expr(); 
+        checkCondition("if", type_expr_if); 
         
         if (t.cat != SN || t.code != CLOSE_PAREN) erro("Expected ')' after expression in 'if'.");
         t = Analex(fd); 
  
-        rotuloElse = newRotulo();
-        GenerateCode("GOFALSE L%d", rotuloElse);
+        labelElse = newLabel();
+        GenerateCode("GOFALSE L%d", labelElse);
         Cmd(); 
 
         if (t.cat == PR && t.code == ELSE) {
-            rotuloFim = newRotulo();
-            GenerateCode("GOTO L%d", rotuloFim);
-            GenerateCode("LABEL L%d", rotuloElse);
+            labelEnd = newLabel();
+            GenerateCode("GOTO L%d", labelEnd);
+            GenerateCode("LABEL L%d", labelElse);
             t = Analex(fd); 
             Cmd(); 
-            GenerateCode("LABEL L%d", rotuloFim);
+            GenerateCode("LABEL L%d", labelEnd);
         } else {
-            GenerateCode("LABEL L%d", rotuloElse);
+            GenerateCode("LABEL L%d", labelElse);
         }
     }
     else if (t.cat == PR && t.code == WHILE) {
-        int rotuloInicio, rotuloFim;
-        rotuloInicio = newRotulo();
-        rotuloFim = newRotulo();
-        GenerateCode("LABEL L%d", rotuloInicio);
+        int labelStart, labelEnd;
+        labelStart = newLabel();
+        labelEnd = newLabel();
+        GenerateCode("LABEL L%d", labelStart);
         t = Analex(fd); 
         if (t.cat != SN || t.code != OPEN_PAREN) erro("Expected '(' after 'while'.");
         t = Analex(fd); 
         
-        DATA_TYPE tipo_expr_while = Expr();
-        checkCondition("while", tipo_expr_while);
+        DATA_TYPE type_expr_while = Expr();
+        checkCondition("while", type_expr_while);
         
         if (t.cat != SN || t.code != CLOSE_PAREN) erro("Expected ')' after expression in 'while'.");
         t = Analex(fd);
-        GenerateCode("GOFALSE L%d", rotuloFim);
+        GenerateCode("GOFALSE L%d", labelEnd);
         Cmd(); 
 
-        GenerateCode("GOTO L%d", rotuloInicio);
-        GenerateCode("LABEL L%d", rotuloFim);
+        GenerateCode("GOTO L%d", labelStart);
+        GenerateCode("LABEL L%d", labelEnd);
     }
     else if (t.cat == PR && t.code == FOR) {
         t = Analex(fd); if (t.cat != SN || t.code != OPEN_PAREN) erro("Expected '(' after 'for'.");
@@ -535,14 +535,14 @@ void Cmd() {
     else if (t.cat == PR && t.code == RETURN) {
         t = Analex(fd);
         
-        DATA_TYPE tipo_retorno = TYPE_VOID;
-        bool tem_expressao = (t.cat != SN || t.code != SEMI_COLON);
+        DATA_TYPE return_type = TYPE_VOID;
+        bool has_expression = (t.cat != SN || t.code != SEMI_COLON);
         
-        if (tem_expressao) {
-            tipo_retorno = Expr(); 
+        if (has_expression) {
+            return_type = Expr(); 
         }
         
-        checkReturnFunction(current_function, tipo_retorno, tem_expressao);
+        checkReturnFunction(current_function, return_type, has_expression);
         
         if (t.cat != SN || t.code != SEMI_COLON) erro("Expected ';' after 'return'.");
         t = Analex(fd);
@@ -566,25 +566,25 @@ void Cmd() {
 
 
 DATA_TYPE Termo() {
-    DATA_TYPE tipo_esq = Fator(); 
+    DATA_TYPE left_type = Fator(); 
     
     while (t.cat == SN && (t.code == MULTIPLICA || t.code == DIVISIO || t.code == AND )) {
         TOKEN op = t;
         t = Analex(fd);
-        DATA_TYPE tipo_dir = Fator(); 
+        DATA_TYPE type_dir = Fator(); 
         
         if (op.code == MULTIPLICA || op.code == DIVISIO) {
-            tipo_esq = getArithmeticResultType(tipo_esq, tipo_dir);
+            left_type = getArithmeticResultType(left_type, type_dir);
             if (op.code == MULTIPLICA) GenerateCode("MUL");
             else if (op.code == DIVISIO) GenerateCode("DIV");
 
         } else if (op.code == AND) {
-            tipo_esq = getLogicalResultType(tipo_esq, tipo_dir);
+            left_type = getLogicalResultType(left_type, type_dir);
 
             GenerateCode("AND");
         }
     }
-    return tipo_esq; 
+    return left_type; 
 }
 
 DATA_TYPE Expr_simp() {
@@ -592,36 +592,36 @@ DATA_TYPE Expr_simp() {
         t = Analex(fd);
     }
     
-    DATA_TYPE tipo_esq = Termo();
+    DATA_TYPE left_type = Termo();
     
     while (t.cat == SN && (t.code == ADDIT || t.code == SUBTRACTT || t.code == OR)) {
         TOKEN op = t;
         t = Analex(fd);
-        DATA_TYPE tipo_dir = Termo();
+        DATA_TYPE type_dir = Termo();
 
         if (op.code == ADDIT || op.code == SUBTRACTT) {
-            tipo_esq = getArithmeticResultType(tipo_esq, tipo_dir);
+            left_type = getArithmeticResultType(left_type, type_dir);
             if (op.code == ADDIT) GenerateCode("ADD"); 
             else if (op.code == SUBTRACTT) GenerateCode("SUB"); 
 
         } else if (op.code == OR) {
-            tipo_esq = getLogicalResultType(tipo_esq, tipo_dir);
+            left_type = getLogicalResultType(left_type, type_dir);
             GenerateCode("OR");
         }
     }
-    return tipo_esq; 
+    return left_type; 
 }
 
     
 DATA_TYPE Expr() {
-    DATA_TYPE tipo_esq = Expr_simp(); 
+    DATA_TYPE left_type = Expr_simp(); 
 
     if (isOp_rel(t)) {
         TOKEN op = t;
         Op_rel(); // Consumes the relational operator
-        DATA_TYPE tipo_dir = Expr_simp(); 
+        DATA_TYPE type_dir = Expr_simp(); 
 
-        DATA_TYPE tipo_resultado = getRelationalResultType(tipo_esq, tipo_dir);
+        DATA_TYPE result_type = getRelationalResultType(left_type, type_dir);
         
         GenerateCode("SUB"); 
         
@@ -652,16 +652,16 @@ DATA_TYPE Expr() {
                 break;
         }
         
-        return tipo_resultado; // The type of the expression is always boolean
+        return result_type; // The type of the expression is always boolean
     }
-    return tipo_esq; 
+    return left_type; 
 }
 
 
 void factor_cont(IDENTIFIER func_id) {
     t = Analex(fd); // Consumes the '('
 
-    int indice_primeiro_param = func_id.address + 1;
+    int index_first_parameter = func_id.address + 1;
     int arg_count = 0;
 
     if (t.cat != SN || t.code != CLOSE_PAREN) {
@@ -670,11 +670,11 @@ void factor_cont(IDENTIFIER func_id) {
         DATA_TYPE tipo_arg = Expr();
         
         // Validation of the first argument
-        if (tableIdentifiers.identifiers[indice_primeiro_param].categoria != CAT_PARAM) {
+        if (tableIdentifiers.identifiers[index_first_parameter].category != CAT_PARAM) {
             erro_semantic("Function '%s' does not expect arguments.", func_id.name);
         }
-        DATA_TYPE tipo_param_esperado = tableIdentifiers.identifiers[indice_primeiro_param].type;
-        checkCompatibilityAssignment(tipo_param_esperado, tipo_arg, "function argument");
+        DATA_TYPE expected_param_type = tableIdentifiers.identifiers[index_first_parameter].type;
+        checkCompatibilityAssignment(expected_param_type, tipo_arg, "function argument");
 
         // Loop to process the other arguments
         while(t.cat == SN && t.code == COMMA) {
@@ -683,12 +683,12 @@ void factor_cont(IDENTIFIER func_id) {
             tipo_arg = Expr();
 
             // Validation of the subsequent arguments
-            int indice_param_atual = indice_primeiro_param + arg_count - 1;
-             if (tableIdentifiers.identifiers[indice_param_atual].categoria != CAT_PARAM) {
+            int indice_param_atual = index_first_parameter + arg_count - 1;
+             if (tableIdentifiers.identifiers[indice_param_atual].category != CAT_PARAM) {
                 erro_semantic("Excess arguments for function '%s'.", func_id.name);
             }
-            tipo_param_esperado = tableIdentifiers.identifiers[indice_param_atual].type;
-            checkCompatibilityAssignment(tipo_param_esperado, tipo_arg, "function argument");
+            expected_param_type = tableIdentifiers.identifiers[indice_param_atual].type;
+            checkCompatibilityAssignment(expected_param_type, tipo_arg, "function argument");
         }
     }
 
@@ -711,9 +711,9 @@ void fator_cont_array(IDENTIFIER id) {
     
     t = Analex(fd); // Consumes the '['
     
-    DATA_TYPE tipo_indice = Expr();
+    DATA_TYPE index_type = Expr();
     
-    if (tipo_indice != TYPE_INT) {
+    if (index_type != TYPE_INT) {
         erro_semantic("The index of an array must be an expression of type int.");
     }
     
@@ -729,7 +729,7 @@ void fator_cont_array(IDENTIFIER id) {
 
 
 DATA_TYPE Fator() {
-    DATA_TYPE tipoRetorno = TYPE_VOID;
+    DATA_TYPE typeReturn = TYPE_VOID;
 
     if (t.cat == CT_INT) {
         GenerateCode("PUSH %d", t.int_value);
@@ -748,12 +748,12 @@ DATA_TYPE Fator() {
     }
     else if (t.cat == SN && t.code == OPEN_PAREN) {
         t = Analex(fd); 
-        tipoRetorno = Expr(); 
+        typeReturn = Expr(); 
         if (t.cat != SN || t.code != CLOSE_PAREN) {
             erro("Expected ')' after expression in factor.");
         }
         t = Analex(fd);
-        return tipoRetorno;
+        return typeReturn;
     }
     else if (t.cat == SN && t.code == NOT) {
         t = Analex(fd);
@@ -772,7 +772,7 @@ DATA_TYPE Fator() {
         t = Analex(fd); // Consumes the ID
         
         if (t.cat == SN && t.code == OPEN_PAREN) {
-            if (id.categoria != CAT_FUNC) {
+            if (id.category != CAT_FUNC) {
                  erro_semantic("Identifier '%s' is not a function.", id.name);
             }
             factor_cont(id);
@@ -780,7 +780,7 @@ DATA_TYPE Fator() {
         } 
         // If it's not a function, it's a variable.
         else {
-             if (id.categoria != CAT_VAR) {
+             if (id.category != CAT_VAR) {
                  erro_semantic("Invalid use of function identifier '%s' as a variable.", id.name);
             }
             

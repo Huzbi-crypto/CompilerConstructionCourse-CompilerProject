@@ -4,9 +4,8 @@ int main(void) {
   b = 3;
   a = b + a * b;
 
-  if (a > b) {
+  if (a = b) {
     b = 2;
   }
-
   return 0;
 }

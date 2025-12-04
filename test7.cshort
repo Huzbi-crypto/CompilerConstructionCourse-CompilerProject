@@ -1,0 +1,6 @@
+int main(void) {
+    char p;
+    p = 'l';
+
+    return 0;
+}

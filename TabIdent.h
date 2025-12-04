@@ -40,7 +40,7 @@ typedef struct {
 } IDENTIFIER;
 
 typedef struct {
-    int tamTabela;
+    int tamTable;
     IDENTIFIER identifiers[MAX_IDENTIF];
 } IDENTIFIER_TABLE;
 

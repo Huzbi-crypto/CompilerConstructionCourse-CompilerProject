@@ -3,7 +3,7 @@
 #include "TabIdent.h"
 
 void StartTableID() {
-    tableIdentifiers.tamTabela = 0;  
+    tableIdentifiers.tamTable = 0;  
 }
 
 /*
@@ -12,7 +12,7 @@ void StartTableID() {
 */
 int SearchTableID(const char *nomeId) {
 
-    for (int i = 0; i < tableIdentifiers.tamTabela; i++) {
+    for (int i = 0; i < tableIdentifiers.tamTable; i++) {
         if (!(strcmp(nomeId, tableIdentifiers.identifiers[i].name))) {
             return i;
         }
@@ -22,7 +22,7 @@ int SearchTableID(const char *nomeId) {
 
 int SearchTableIDSameScope(const char *nomeId, SCOPE scope) {
 
-    for (int i = 0; i < tableIdentifiers.tamTabela; i++) {
+    for (int i = 0; i < tableIdentifiers.tamTable; i++) {
         if (!(strcmp(nomeId, tableIdentifiers.identifiers[i].name))) {
             if( tableIdentifiers.identifiers[i].scope == scope) {
                 return i;
@@ -34,11 +34,11 @@ int SearchTableIDSameScope(const char *nomeId, SCOPE scope) {
 }
 
 int InsertTableID(const char *nomeId, CATEGORY_IDENTIFIER catId, SCOPE scope, DATA_TYPE type, bool isZombie, bool isArray, int tamArray, int address) {
-    if (tableIdentifiers.tamTabela == MAX_IDENTIF) {
+    if (tableIdentifiers.tamTable == MAX_IDENTIF) {
         printf("Overflow in the identifier table!");
     }
 
-    int i = tableIdentifiers.tamTabela;
+    int i = tableIdentifiers.tamTable;
     strcpy(tableIdentifiers.identifiers[i].name, nomeId);
 
     // Use the address passed as a parameter instead of 'i'
@@ -51,7 +51,7 @@ int InsertTableID(const char *nomeId, CATEGORY_IDENTIFIER catId, SCOPE scope, DA
     tableIdentifiers.identifiers[i].array = isArray;
     tableIdentifiers.identifiers[i].tamArray = tamArray;
 
-    tableIdentifiers.tamTabela++;
+    tableIdentifiers.tamTable++;
     return i;
 }
 

@@ -8,9 +8,9 @@
 
 /**
  * @brief Function that opens the output file.
- * @param nome_arquivo Output file name
+ * @param file_name Output file name
  */
-void InitializeGenerator(const char* nome_arquivo);
+void InitializeGenerator(const char* file_name);
 
 
 /**

@@ -132,7 +132,7 @@ void Prog() {
         }
         else if (t.cat == SN && t.code == OPEN_CURLY) {
 
-            current_function = tableIdentifiers.identifiers[tableIdentifiers.tamTabela - 1];
+            current_function = tableIdentifiers.identifiers[tableIdentifiers.tamTable - 1];
 
             // Generates the function header
             GenerateCode("LABEL %s", current_function.name);

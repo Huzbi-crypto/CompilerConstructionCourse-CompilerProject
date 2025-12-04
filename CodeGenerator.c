@@ -2,12 +2,12 @@
 
 static FILE* output;
 
-void InitializeGenerator(const char* nome_arquivo) {
-    output = fopen(nome_arquivo, "w");
+void InitializeGenerator(const char* file_name) {
+    output = fopen(file_name, "w");
 
     if (output == NULL) 
     {
-        printf("Could not open output file '%s'.\n", nome_arquivo);
+        printf("Could not open output file '%s'.\n", file_name);
         exit(1);
     }
 }

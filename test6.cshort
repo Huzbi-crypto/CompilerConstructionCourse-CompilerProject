@@ -1,0 +1,6 @@
+int main(void) {
+    FLOAT x;
+    x = 9.0;
+
+    return 0;
+}
